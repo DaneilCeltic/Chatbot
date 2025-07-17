@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Nastavení Chatbota</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {
+      background: #e7ebf4;
+      font-family: 'Inter', Arial, sans-serif;
+      margin: 0; padding: 0;
+    }
+    .center-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      justify-content: center;
+    }
+    .settings-wrap {
+      max-width: 430px;
+      width: 100%;
+      margin: 38px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px #2253d510;
+      padding: 32px 26px 30px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    h1 {
+      color: #2e54e9;
+      font-weight: 800;
+      font-size: 2.2rem;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+    }
+    label { font-weight: 700; margin: 16px 0 6px 0; display: block;}
+    input[type="text"] {
+      width: 100%;
+      font-size: 1.1em;
+      padding: 7px 11px;
+      border: 1.5px solid #d1d6ee;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+    }
+    .avatar-opts, .bg-opts { display: flex; gap: 7px; margin-bottom: 9px;}
+    .avatar-btn, .bg-btn {
+      padding: 8px 12px; border-radius: 11px; border: none; background: #eef3fc;
+      cursor: pointer; font-size: 1.5em; transition: .15s; box-shadow:0 2px 9px #28358a0c;
+    }
+    .avatar-btn.selected, .bg-btn.selected {
+      background: #2977ff; color: #fff; box-shadow:0 2px 10px #2977ff22;
+      border: 2.2px solid #1348ae;
+      transform: scale(1.1);
+    }
+    #avatar-upload { display: none; }
+    .upload-label {font-size: 1em; color: #234fa6; cursor: pointer; display: inline-flex; align-items:center; gap:3px; margin-left:3px;}
+    .chat-preview {
+      border-radius: 18px;
+      margin: 14px 0 10px 0;
+      padding: 19px 16px 16px 16px;
+      min-height: 48px;
+      background: linear-gradient(120deg,#c8dfff,#f5fafd 100%);
+      display: flex; align-items: center; gap: 14px; font-size: 1.1em;
+      color: #2a3964; font-weight: 600;
+      border: 1.7px solid #c9d6f4;
+    }
+    .preview-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: #fff;
+      border: 2.5px solid #1856b9; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 2em;
+    }
+    .btn-row { display: flex; gap: 18px; margin-top: 12px;}
+    .settings-btn {
+      flex:1; padding: 12px 0; border-radius: 9px; border: none;
+      background: #296fff; color: #fff; font-size: 1.07em; font-weight: 700;
+      box-shadow: 0 3px 12px #2253d533; cursor: pointer; transition:.13s;
+    }
+    .settings-btn.reset {
+      background: #f5f8ff; color: #1e3675; border: 1.2px solid #c9d6f4;
+    }
+    /* --- Embed box --- */
+    .embed-wrap { 
+      margin-top: 30px; 
+      display: flex; flex-direction: column; align-items: center;
+      width: 100%;
+    }
+    .embed-label { font-weight: 700; display:block; margin-bottom:7px;}
+    #embed-code {
+      width: 100%; max-width: 340px;
+      font-family:monospace; border-radius:10px; border:1.5px solid #bcd2f4;
+      font-size: 1em; padding: 9px 12px; background: #f8fbff; resize: none; min-height: 88px;
+      margin-bottom: 7px; color: #22335d;
+      display: block;
+      margin-left: auto; margin-right: auto;
+      box-sizing: border-box;
+    }
+    .copy-btn {
+      background:#2977ff; color:#fff; border:none; border-radius:7px; font-size:1em; padding:7px 22px; cursor:pointer; transition:.14s;
+      box-shadow:0 2px 7px #2253d514; font-weight:600;
+      margin-left: auto; margin-right: auto; display: block;
+    }
+    .copy-btn.copied { background: #1ed47a;}
+    @media (max-width: 600px) {
+      .settings-wrap { padding: 14px 3vw;}
+      .btn-row { flex-direction:column; gap:9px;}
+      .embed-wrap {align-items: stretch;}
+      #embed-code { max-width: 100%;}
+    }
+  </style>
+</head>
+<body>
+  <div class="center-main">
+    <form class="settings-wrap" onsubmit="event.preventDefault(); saveSettings();">
+      <h1>Nastavení Chatbota</h1>
+
+      <label for="chat-title">Název chatu</label>
+      <input id="chat-title" type="text" value="Akademie Asistent">
+
+      <label>Avatar bota</label>
+      <div class="avatar-opts" id="avatar-options">
+        <button class="avatar-btn selected" type="button">🤖</button>
+        <button class="avatar-btn" type="button">🧑‍🎓</button>
+        <button class="avatar-btn" type="button">🦉</button>
+        <button class="avatar-btn" type="button">🎓</button>
+        <button class="avatar-btn" type="button">🧠</button>
+        <label class="upload-label">
+          <input type="file" id="avatar-upload" accept="image/*">
+          📷 Nahrát obrázek
+        </label>
+      </div>
+
+      <label>Pozadí chatu</label>
+      <div class="bg-opts" id="chat-bg-options">
+        <button class="bg-btn selected" type="button" style="background:linear-gradient(120deg,#2977ff 0%,#0b234a 100%);"></button>
+        <button class="bg-btn" type="button" style="background:#14213d;"></button>
+        <button class="bg-btn" type="button" style="background:#1e2746;"></button>
+        <button class="bg-btn" type="button" style="background:linear-gradient(120deg,#5ec6f5 0%,#0b234a 100%);"></button>
+        <button class="bg-btn" type="button" style="background:#f5fafd;border:1.5px solid #bcd2f4;"></button>
+      </div>
+
+      <label>Pozadí hlavičky</label>
+      <div class="bg-opts" id="head-bg-options">
+        <button class="bg-btn selected" type="button" style="background:linear-gradient(90deg,#2977ff 0,#0b234a 100%);"></button>
+        <button class="bg-btn" type="button" style="background:#14213d;"></button>
+        <button class="bg-btn" type="button" style="background:#3244a8;"></button>
+        <button class="bg-btn" type="button" style="background:#f5fafd;border:1.5px solid #bcd2f4;"></button>
+      </div>
+
+      <div class="chat-preview" id="chat-preview">
+        <div class="preview-avatar" id="preview-avatar">🤖</div>
+        <span id="preview-title">Akademie Asistent</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="settings-btn" type="submit">Uložit změny</button>
+        <button class="settings-btn reset" type="button" id="reset-btn">Resetovat</button>
+      </div>
+
+      <!-- Embed kód -->
+      <div class="embed-wrap">
+        <label for="embed-code" class="embed-label">Embed kód pro vložení na web:</label>
+        <textarea id="embed-code" readonly></textarea>
+        <button type="button" class="copy-btn" id="copy-btn">Kopírovat</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    // === ZÁKLADNÍ DATA A STAV ===
+    const DEFAULTS = {
+      title: "Akademie Asistent",
+      avatar: "🤖",
+      avatarImg: null,
+      chatBG: "linear-gradient(120deg,#2977ff 0%,#0b234a 100%)",
+      headBG: "linear-gradient(90deg,#2977ff 0,#0b234a 100%)"
+    };
+    let state = {...DEFAULTS};
+    const LS_KEY = "chatui-settings-v3";
+
+    // === FUNKCE ===
+    function saveSettings() {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      updatePreview();
+      updateEmbedCode();
+    }
+    function resetSettings() {
+      state = {...DEFAULTS};
+      localStorage.removeItem(LS_KEY);
+      updateForm();
+      updatePreview();
+      updateEmbedCode();
+    }
+    function updateForm() {
+      document.getElementById("chat-title").value = state.title;
+      // Avatar
+      document.querySelectorAll('.avatar-btn').forEach((btn, i) => {
+        btn.classList.toggle("selected", state.avatarImg ? false : btn.textContent === state.avatar);
+      });
+      // BG chat
+      document.querySelectorAll('#chat-bg-options .bg-btn').forEach((btn, i) => {
+        btn.classList.toggle("selected", btn.style.background === state.chatBG);
+      });
+      // BG head
+      document.querySelectorAll('#head-bg-options .bg-btn').forEach((btn, i) => {
+        btn.classList.toggle("selected", btn.style.background === state.headBG);
+      });
+      // Avatar obrázek preview
+      showAvatarImg(state.avatarImg);
+    }
+    function updatePreview() {
+      document.getElementById("preview-title").textContent = state.title;
+      let avatarNode = document.getElementById("preview-avatar");
+      if (state.avatarImg) {
+        avatarNode.innerHTML = `<img src="${state.avatarImg}" style="width:100%;height:100%;border-radius:50%;">`;
+      } else {
+        avatarNode.textContent = state.avatar;
+      }
+      // pozadí chat preview
+      document.getElementById("chat-preview").style.background = state.chatBG;
+    }
+    function showAvatarImg(imgData) {
+      let preview = document.getElementById("preview-avatar");
+      if (imgData) {
+        preview.innerHTML = `<img src="${imgData}" style="width:100%;height:100%;border-radius:50%;">`;
+      } else {
+        preview.textContent = state.avatar;
+      }
+    }
+    function updateEmbedCode() {
+      let avatarAttr = state.avatarImg
+        ? `data-avatar-img="${state.avatarImg}"`
+        : `data-avatar="${state.avatar}"`;
+      
+      let code = `<div id="my-chatbot-widget"></div>
+<script src="https://TVUJ_SERVER/widget.js"
+  data-title="${encodeHTML(state.title)}"
+  ${avatarAttr}
+  data-chatbg="${encodeHTML(state.chatBG)}"
+  data-headbg="${encodeHTML(state.headBG)}"
+  data-api="https://TVUJ_SERVER/ask"><\/script>`;
+      document.getElementById("embed-code").value = code;
+    }
+    function encodeHTML(str) {
+      return String(str).replace(/[&<>'"]/g, s =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));
+    }
+    // === HANDLERY ===
+    document.getElementById("chat-title").oninput = e => { state.title = e.target.value; updatePreview(); updateEmbedCode(); }
+    document.querySelectorAll('.avatar-btn').forEach(btn => {
+      btn.onclick = function() {
+        state.avatar = btn.textContent;
+        state.avatarImg = null;
+        document.querySelectorAll('.avatar-btn').forEach(b=>b.classList.remove("selected"));
+        btn.classList.add("selected");
+        updatePreview(); updateEmbedCode();
+      }
+    });
+    document.getElementById("avatar-upload").onchange = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt){
+        state.avatarImg = evt.target.result;
+        document.querySelectorAll('.avatar-btn').forEach(b=>b.classList.remove("selected"));
+        updatePreview(); updateEmbedCode();
+      };
+      reader.readAsDataURL(file);
+    };
+    document.querySelectorAll('#chat-bg-options .bg-btn').forEach(btn => {
+      btn.onclick = function() {
+        state.chatBG = btn.style.background;
+        document.querySelectorAll('#chat-bg-options .bg-btn').forEach(b=>b.classList.remove("selected"));
+        btn.classList.add("selected");
+        updatePreview(); updateEmbedCode();
+      }
+    });
+    document.querySelectorAll('#head-bg-options .bg-btn').forEach(btn => {
+      btn.onclick = function() {
+        state.headBG = btn.style.background;
+        document.querySelectorAll('#head-bg-options .bg-btn').forEach(b=>b.classList.remove("selected"));
+        btn.classList.add("selected");
+        updatePreview(); updateEmbedCode();
+      }
+    });
+    document.getElementById("reset-btn").onclick = resetSettings;
+    document.getElementById("copy-btn").onclick = function() {
+      let ta = document.getElementById("embed-code");
+      ta.select(); ta.setSelectionRange(0,99999);
+      document.execCommand("copy");
+      this.classList.add("copied");
+      this.textContent = "Zkopírováno!";
+      setTimeout(() => { this.textContent = "Kopírovat"; this.classList.remove("copied"); }, 1200);
+    };
+
+    // INIT
+    (function(){
+      const s = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+      if (s) state = {...DEFAULTS, ...s};
+      updateForm();
+      updatePreview();
+      updateEmbedCode();
+    })();
+  </script>
+</body>
+</html>
